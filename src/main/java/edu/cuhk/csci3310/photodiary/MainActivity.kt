@@ -1,9 +1,11 @@
 package edu.cuhk.csci3310.photodiary
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.icu.text.SimpleDateFormat
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -13,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
@@ -27,6 +28,9 @@ class MainActivity : AppCompatActivity() {
     lateinit var currentPhotoPath: String
     var PERMISSION_ID = 44
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var photoList: ArrayList<Photo>
+
+
 
     @Throws(IOException::class)
     private fun createImageFile(): File {
@@ -52,7 +56,25 @@ class MainActivity : AppCompatActivity() {
 //            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                    .setAction("Action", null).show()
             if (checkPermissions()) {
-                dispatchTakePictureIntent(view)
+                val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                var gps_enabled = false
+                var network_enabled = false
+                try {
+                    gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                } catch (ex: Exception) {
+                }
+
+                try {
+                    network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+                } catch (ex: Exception) {
+                }
+                if (gps_enabled && network_enabled){
+                    dispatchTakePictureIntent(view)
+                } else {
+                    Snackbar.make(view, "Please enable location service", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
+                }
+
             } else {
                 requestPermissions()
             }

@@ -16,6 +16,7 @@ import kotlinx.android.synthetic.main.activity_new_photo.*
 import java.io.File
 import java.lang.Exception
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class NewPhotoActivity : AppCompatActivity() {
@@ -24,6 +25,7 @@ class NewPhotoActivity : AppCompatActivity() {
     private var location:Location? = null
     private var path: String? = null
     private lateinit var locationCallback: LocationCallback
+    private lateinit var photoList: ArrayList<Photo>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,13 +51,13 @@ class NewPhotoActivity : AppCompatActivity() {
                         val latitude = location!!.latitude
                         val geocoder = Geocoder(applicationContext, Locale.getDefault())
                         try {
-                            val listAddress: List<Address> = geocoder.getFromLocation(latitude, longitude, 1);
+                            val listAddress: List<Address> = geocoder.getFromLocation(latitude, longitude, 1)
                             if (listAddress.isNotEmpty()){
                                 val adr = listAddress[0].getAddressLine(0)
                                 textView.setText(adr)
                             }
                         } catch(e:Exception) {
-
+                            System.out.println(e.toString())
                         }
                     }
                 }
@@ -78,7 +80,7 @@ class NewPhotoActivity : AppCompatActivity() {
                     val latitude = location.latitude
                     val geocoder = Geocoder(applicationContext, Locale.getDefault())
 
-                    val listAddress: List<Address> = geocoder.getFromLocation(latitude, longitude, 1);
+                    val listAddress: List<Address> = geocoder.getFromLocation(latitude, longitude, 1)
                     if (listAddress.isNotEmpty()){
                         val adr = listAddress[0].getAddressLine(0)
                         textView.setText(adr)
