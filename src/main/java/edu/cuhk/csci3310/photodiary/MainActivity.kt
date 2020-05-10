@@ -3,6 +3,7 @@ package edu.cuhk.csci3310.photodiary
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.icu.text.SimpleDateFormat
 import android.location.LocationManager
@@ -17,6 +18,8 @@ import androidx.core.content.FileProvider
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import java.io.IOException
@@ -28,7 +31,9 @@ class MainActivity : AppCompatActivity() {
     lateinit var currentPhotoPath: String
     var PERMISSION_ID = 44
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var photoList: ArrayList<Photo>
+    private lateinit var photoList: LinkedList<Photo>
+    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var editor: SharedPreferences.Editor
 
 
 
@@ -51,6 +56,18 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+        sharedPreferences = getSharedPreferences("edu.csci3310.photodiary", Context.MODE_PRIVATE)
+        editor = sharedPreferences.edit()
+        photoList = LinkedList<Photo>()
+        if (!sharedPreferences.contains("photos")) { //check if the shared preferences exist or not, if no, read default value from assets
+            //convert the linked list of sweet to json string
+            val gson = Gson()
+            val json = gson.toJson(photoList)
+            set("photos", json)
+        } else {
+            //As the linked list created by gson has a different memory address, we need to read from the new list and apply the change to the original list
+            readSharedPreferences()
+        }
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         fab.setOnClickListener { view ->
 //            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -68,15 +85,15 @@ class MainActivity : AppCompatActivity() {
                     network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
                 } catch (ex: Exception) {
                 }
-                if (gps_enabled && network_enabled){
+                if (gps_enabled || network_enabled){
                     dispatchTakePictureIntent(view)
-                } else {
+                } else { //either fine and course location cannot be used
                     Snackbar.make(view, "Please enable location service", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
                 }
 
             } else {
-                requestPermissions()
+                requestPermissions() //the app cannot be run without permission
             }
 
         }
@@ -150,6 +167,30 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    private fun set(
+        key: String,
+        value: String
+    ) { // store the json string to shared preference
+        editor.putString(key, value)
+        editor.apply()
+    }
 
+    private fun readSharedPreferences() { //read json string and convert it to linked list of sweet
+        val gson = Gson()
+        val json = sharedPreferences.getString("photos", null)
+        val type =
+            object : TypeToken<LinkedList<Photo?>?>() {}.type
+        val temp = gson.fromJson<LinkedList<Photo>>(json, type)
+        photoList.clear()
+        for (photo in temp){//keep same memory address
+            photoList.add(photo)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        readSharedPreferences()
+//        mAdapter.notifyDataSetChanged()
+    }
 
 }
