@@ -57,7 +57,8 @@
         android:layout_marginBottom="8dp"
         android:text="@string/save"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:onClick="save"/>
 
     <Button
         android:id="@+id/button2"

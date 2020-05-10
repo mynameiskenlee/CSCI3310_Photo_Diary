@@ -15,6 +15,8 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
@@ -34,7 +36,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var photoList: LinkedList<Photo>
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var editor: SharedPreferences.Editor
-
+    private var mAdapter: PhotoListAdapter? = null
+    private lateinit var mRecyclerView: RecyclerView
 
 
     @Throws(IOException::class)
@@ -56,7 +59,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        sharedPreferences = getSharedPreferences("edu.csci3310.photodiary", Context.MODE_PRIVATE)
+        sharedPreferences = getSharedPreferences("edu.cuhk.csci3310.photodiary", Context.MODE_PRIVATE)
         editor = sharedPreferences.edit()
         photoList = LinkedList<Photo>()
         if (!sharedPreferences.contains("photos")) { //check if the shared preferences exist or not, if no, read default value from assets
@@ -97,6 +100,12 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+        mRecyclerView = findViewById<RecyclerView>(R.id.photolist)
+        mAdapter = PhotoListAdapter(this, photoList)
+        mRecyclerView.adapter = mAdapter
+        mRecyclerView.layoutManager = LinearLayoutManager(this)
+        (mRecyclerView.layoutManager as LinearLayoutManager).reverseLayout = true;
+        (mRecyclerView.layoutManager as LinearLayoutManager).stackFromEnd = true
     }
 
     val REQUEST_TAKE_PHOTO = 1
@@ -178,6 +187,7 @@ class MainActivity : AppCompatActivity() {
     private fun readSharedPreferences() { //read json string and convert it to linked list of sweet
         val gson = Gson()
         val json = sharedPreferences.getString("photos", null)
+        System.out.println(json)
         val type =
             object : TypeToken<LinkedList<Photo?>?>() {}.type
         val temp = gson.fromJson<LinkedList<Photo>>(json, type)
@@ -190,7 +200,11 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         readSharedPreferences()
-//        mAdapter.notifyDataSetChanged()
+//        mAdapter?.notifyDataSetChanged()
+        if (!photoList.isEmpty()){
+            mRecyclerView.smoothScrollToPosition(photoList.size-1) //scroll back to top
+        }
+
     }
 
 }

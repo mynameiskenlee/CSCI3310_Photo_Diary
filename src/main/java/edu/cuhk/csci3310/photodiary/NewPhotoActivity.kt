@@ -2,6 +2,7 @@ package edu.cuhk.csci3310.photodiary
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.icu.text.SimpleDateFormat
 import android.location.Address
 import android.location.Geocoder
@@ -15,6 +16,8 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import com.google.android.gms.location.*
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_new_photo.*
 import java.io.File
 import java.util.*
@@ -24,15 +27,21 @@ class NewPhotoActivity : AppCompatActivity() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var location:Location? = null
-    private var path: String? = null
+    private var path: String? = ""
     private lateinit var locationCallback: LocationCallback
     private lateinit var date: Date
-    private lateinit var photoList: ArrayList<Photo>
+    private lateinit var photoList: LinkedList<Photo>
+    private lateinit var photo: Photo
+    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var editor: SharedPreferences.Editor
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_photo)
+        sharedPreferences =
+            getSharedPreferences("edu.cuhk.csci3310.photodiary", Context.MODE_PRIVATE)
+        editor = sharedPreferences.edit()
         val intent: Intent = getIntent()
         path = intent.getStringExtra("path")
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -103,7 +112,7 @@ class NewPhotoActivity : AppCompatActivity() {
         }
         date = Date()
         textView2.setText(SimpleDateFormat("HH:mm:ss dd/MM/yyyy").format(date))
-
+        photo = Photo(path!!,null,date,"")
     }
 
     private fun startLocationUpdates() {
@@ -113,12 +122,32 @@ class NewPhotoActivity : AppCompatActivity() {
             Looper.getMainLooper())
     }
 
+    fun save(view: View?) {
+        photo.description = editText2.text.toString()
+        photo.location = location!!
+        readSharedPreferences()
+        photoList.add(photo)
+        val gson = Gson()
+        val json = gson.toJson(photoList)
+        editor.putString("photos", json)
+        editor.apply()
+        close(view!!)
+    }
+
     fun close(view: View) {
         view.performHapticFeedback( //perform haptic feedback on real device
             HapticFeedbackConstants.VIRTUAL_KEY,
             HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Ignore device's setting. Otherwise, you can use FLAG_IGNORE_VIEW_SETTING to ignore view's setting.
         )
         finish()
+    }
+
+    private fun readSharedPreferences() { //read json string and convert it to linked list of sweet
+        val gson = Gson()
+        val json = sharedPreferences.getString("photos", null)
+        val type =
+            object : TypeToken<LinkedList<Photo?>?>() {}.type
+        photoList = gson.fromJson<LinkedList<Photo>>(json, type)
     }
 
 }
