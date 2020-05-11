@@ -1,8 +1,10 @@
 package edu.cuhk.csci3310.photodiary
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.icu.text.SimpleDateFormat
 import android.location.Address
 import android.location.Geocoder
@@ -14,6 +16,7 @@ import android.os.Looper
 import android.view.HapticFeedbackConstants
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import com.google.android.gms.location.*
 import com.google.gson.Gson
@@ -38,6 +41,7 @@ class NewPhotoActivity : AppCompatActivity() {
     private lateinit var photo: Photo
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var editor: SharedPreferences.Editor
+    var PERMISSION_ID = 44
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -119,10 +123,15 @@ class NewPhotoActivity : AppCompatActivity() {
         photo = Photo(path!!,null,date,"")
         fab.setOnClickListener {
                 view ->
-            val sharingIntent = Intent(Intent.ACTION_SEND)
-            sharingIntent.type = "image/jpeg"
-            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri)
-            startActivity(Intent.createChooser(sharingIntent, "Share image using"))
+            if (checkPermissions()){
+                val sharingIntent = Intent(Intent.ACTION_SEND)
+                sharingIntent.type = "image/jpeg"
+                sharingIntent.putExtra(Intent.EXTRA_STREAM, uri)
+                startActivity(Intent.createChooser(sharingIntent, "Share image using"))
+            } else {
+                requestPermissions()
+            }
+
         }
     }
 
@@ -167,4 +176,20 @@ class NewPhotoActivity : AppCompatActivity() {
         photoList = gson.fromJson<LinkedList<Photo>>(json, type)
     }
 
+    private fun checkPermissions(): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            this,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestPermissions() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ),
+            PERMISSION_ID
+        )
+    }
 }

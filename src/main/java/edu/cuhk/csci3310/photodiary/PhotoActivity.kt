@@ -1,8 +1,10 @@
 package edu.cuhk.csci3310.photodiary
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.icu.text.SimpleDateFormat
 import android.location.Address
 import android.location.Geocoder
@@ -11,6 +13,7 @@ import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -24,6 +27,7 @@ class PhotoActivity : AppCompatActivity() {
     private lateinit var photo: Photo
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var editor: SharedPreferences.Editor
+    var PERMISSION_ID = 44
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,10 +65,15 @@ class PhotoActivity : AppCompatActivity() {
         }
         fab.setOnClickListener {
                 view ->
-            val sharingIntent = Intent(Intent.ACTION_SEND)
-            sharingIntent.type = "image/jpeg"
-            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri)
-            startActivity(Intent.createChooser(sharingIntent, "Share image using"))
+            if (checkPermissions()){
+                val sharingIntent = Intent(Intent.ACTION_SEND)
+                sharingIntent.type = "image/jpeg"
+                sharingIntent.putExtra(Intent.EXTRA_STREAM, uri)
+                startActivity(Intent.createChooser(sharingIntent, "Share image using"))
+            } else {
+                requestPermissions()
+            }
+
         }
     }
 
@@ -93,5 +102,22 @@ class PhotoActivity : AppCompatActivity() {
             HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Ignore device's setting. Otherwise, you can use FLAG_IGNORE_VIEW_SETTING to ignore view's setting.
         )
         finish()
+    }
+
+    private fun checkPermissions(): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            this,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestPermissions() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ),
+            PERMISSION_ID
+        )
     }
 }
