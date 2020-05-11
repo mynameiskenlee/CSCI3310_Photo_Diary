@@ -36,9 +36,7 @@ class Photo(picture: String, location: Location?, datetime:Date, description:Str
             return LatLng(latitude,longitude)
         }
         set(location: Any) {
-            if (location != null) {
-                helperSet(location)
-            }
+            helperSet(location)
         }
 
     private fun <T> helperSet(t: T) = when (t) {

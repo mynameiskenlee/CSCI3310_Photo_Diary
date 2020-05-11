@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.view.HapticFeedbackConstants
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -75,6 +76,10 @@ class MainActivity : AppCompatActivity() {
         fab.setOnClickListener { view ->
 //            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                    .setAction("Action", null).show()
+            view.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Ignore device's setting. Otherwise, you can use FLAG_IGNORE_VIEW_SETTING to ignore view's setting.
+            )
             if (checkPermissions()) {
                 val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
                 var gps_enabled = false
@@ -100,6 +105,17 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+
+        fab2.setOnClickListener { view ->
+            view.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Ignore device's setting. Otherwise, you can use FLAG_IGNORE_VIEW_SETTING to ignore view's setting.
+            )
+            val intent = Intent(this,MapsActivity::class.java)
+            startActivity(intent)
+//           Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                    .setAction("Action", null).show()
+        }
         mRecyclerView = findViewById<RecyclerView>(R.id.photolist)
         mAdapter = PhotoListAdapter(this, photoList)
         mRecyclerView.adapter = mAdapter
@@ -123,7 +139,6 @@ class MainActivity : AppCompatActivity() {
                     Snackbar.make(view,"Error when create photo file",Snackbar.LENGTH_LONG).setAction("Action",null).show()
                     null
                 }
-                System.out.println(currentPhotoPath)
                 // Continue only if the File was successfully created
                 photoFile?.also {
                     val photoURI: Uri = FileProvider.getUriForFile(
@@ -187,7 +202,6 @@ class MainActivity : AppCompatActivity() {
     private fun readSharedPreferences() { //read json string and convert it to linked list of sweet
         val gson = Gson()
         val json = sharedPreferences.getString("photos", null)
-        System.out.println(json)
         val type =
             object : TypeToken<LinkedList<Photo?>?>() {}.type
         val temp = gson.fromJson<LinkedList<Photo>>(json, type)

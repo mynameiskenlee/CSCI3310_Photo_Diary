@@ -6,6 +6,9 @@ import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
+import android.icu.text.SimpleDateFormat
+import android.location.Address
+import android.location.Geocoder
 import android.media.ExifInterface
 import android.net.Uri
 import android.view.HapticFeedbackConstants
@@ -16,6 +19,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.activity_new_photo.*
 import kotlinx.android.synthetic.main.photolist_item.view.*
 import java.io.File
 import java.io.IOException
@@ -48,7 +52,6 @@ class PhotoListAdapter(
         val file: File? = mInflater.context.getExternalFilesDir(path)
         var uri: Uri? = null
         if (file != null) {
-            System.out.println(file.absolutePath)
             uri = FileProvider.getUriForFile(mInflater.context,"com.example.android.fileprovider", file)
         }
         val bitmapImage = BitmapFactory.decodeFile(file?.absolutePath)
@@ -69,6 +72,14 @@ class PhotoListAdapter(
 //        holder.photoItemView.setImageURI(uri)
         holder.photoItemView.setImageBitmap(bmRotated)
         holder.picDescription.setText(photo.description)
+        holder.picTime.setText(SimpleDateFormat("E dd/MM/yyyy HH:mm:ss").format(photo.datetime))
+        val geocoder = Geocoder(mInflater.context, Locale.getDefault())
+
+        val listAddress: List<Address> = geocoder.getFromLocation(photo.latitude, photo.longitude, 1)
+        if (listAddress.isNotEmpty()){
+            val adr = listAddress[0].getAddressLine(0)
+            holder.picLocation.setText(adr)
+        }
 //        holder.sweetRestaurant.setText(sweet.getRestaurant())
 //        holder.sweetRanking.text = mInflater.context.getString(R.string.star) + sweet.getRating()
     }
@@ -83,8 +94,8 @@ class PhotoListAdapter(
     ) :
         RecyclerView.ViewHolder(itemView), View.OnClickListener {
         var photoItemView: ImageView
-        private var picTime: TextView
-        private var picLocation: TextView
+        var picTime: TextView
+        var picLocation: TextView
         var picDescription: TextView
         private var mAdapter: PhotoListAdapter
         override fun onClick(v: View) {

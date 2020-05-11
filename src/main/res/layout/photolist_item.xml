@@ -18,25 +18,28 @@
         android:padding="6dp">
 
         <TextView
-            android:id="@+id/piclocation"
+            android:id="@+id/pictime"
             android:textSize="20sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView" />
+            android:text=""
+            android:padding="2dp"/>
 
         <TextView
-            android:id="@+id/pictime"
+            android:id="@+id/piclocation"
             android:textSize="16sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView" />
+            android:text=""
+            android:padding="2dp"/>
 
         <TextView
             android:id="@+id/picdescription"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:text=""
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:padding="2dp"/>
     </LinearLayout>
 
 </LinearLayout>

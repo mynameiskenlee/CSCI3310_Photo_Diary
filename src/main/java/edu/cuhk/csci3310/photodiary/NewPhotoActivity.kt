@@ -111,7 +111,7 @@ class NewPhotoActivity : AppCompatActivity() {
             imageView.setImageURI(uri)
         }
         date = Date()
-        textView2.setText(SimpleDateFormat("HH:mm:ss dd/MM/yyyy").format(date))
+        textView2.setText(SimpleDateFormat("E dd/MM/yyyy HH:mm:ss").format(date))
         photo = Photo(path!!,null,date,"")
     }
 
