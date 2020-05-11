@@ -7,10 +7,10 @@ import android.icu.text.SimpleDateFormat
 import android.location.Address
 import android.location.Geocoder
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -58,6 +58,13 @@ class PhotoActivity : AppCompatActivity() {
         }
         if (uri != null){
             imageView.setImageURI(uri)
+        }
+        fab.setOnClickListener {
+                view ->
+            val sharingIntent = Intent(Intent.ACTION_SEND)
+            sharingIntent.type = "image/jpeg"
+            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri)
+            startActivity(Intent.createChooser(sharingIntent, "Share image using"))
         }
     }
 

@@ -19,6 +19,10 @@ import com.google.android.gms.location.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_new_photo.*
+import kotlinx.android.synthetic.main.activity_new_photo.editText2
+import kotlinx.android.synthetic.main.activity_new_photo.fab
+import kotlinx.android.synthetic.main.activity_new_photo.imageView
+import kotlinx.android.synthetic.main.activity_new_photo.textView
 import java.io.File
 import java.util.*
 
@@ -113,6 +117,13 @@ class NewPhotoActivity : AppCompatActivity() {
         date = Date()
         textView2.setText(SimpleDateFormat("E dd/MM/yyyy HH:mm:ss").format(date))
         photo = Photo(path!!,null,date,"")
+        fab.setOnClickListener {
+                view ->
+            val sharingIntent = Intent(Intent.ACTION_SEND)
+            sharingIntent.type = "image/jpeg"
+            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri)
+            startActivity(Intent.createChooser(sharingIntent, "Share image using"))
+        }
     }
 
     private fun startLocationUpdates() {
