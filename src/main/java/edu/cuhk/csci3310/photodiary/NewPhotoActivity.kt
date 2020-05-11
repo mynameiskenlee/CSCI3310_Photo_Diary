@@ -66,6 +66,7 @@ class NewPhotoActivity : AppCompatActivity() {
                             if (listAddress.isNotEmpty()){
                                 val adr = listAddress[0].getAddressLine(0)
                                 textView.setText(adr)
+                                fusedLocationClient.removeLocationUpdates(locationCallback)
                             }
                         } catch(e:Exception) {
                             System.out.println(e.toString())
@@ -95,7 +96,6 @@ class NewPhotoActivity : AppCompatActivity() {
                         val adr = listAddress[0].getAddressLine(0)
                         textView.setText(adr)
                     }
-                    fusedLocationClient.removeLocationUpdates(locationCallback)
 
                 }
             }
@@ -131,6 +131,12 @@ class NewPhotoActivity : AppCompatActivity() {
         val json = gson.toJson(photoList)
         editor.putString("photos", json)
         editor.apply()
+        close(view!!)
+    }
+
+    fun del(view: View?) {
+        val file: File? = getExternalFilesDir(photo.picture)
+        file!!.delete()
         close(view!!)
     }
 

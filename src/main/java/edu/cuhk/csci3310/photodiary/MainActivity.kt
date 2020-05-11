@@ -111,8 +111,31 @@ class MainActivity : AppCompatActivity() {
                 HapticFeedbackConstants.VIRTUAL_KEY,
                 HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Ignore device's setting. Otherwise, you can use FLAG_IGNORE_VIEW_SETTING to ignore view's setting.
             )
-            val intent = Intent(this,MapsActivity::class.java)
-            startActivity(intent)
+            if (checkPermissions()) {
+                val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                var gps_enabled = false
+                var network_enabled = false
+                try {
+                    gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                } catch (ex: Exception) {
+                }
+
+                try {
+                    network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+                } catch (ex: Exception) {
+                }
+                if (gps_enabled || network_enabled){
+                    val intent = Intent(this,MapsActivity::class.java)
+                    startActivity(intent)
+                } else { //either fine and course location cannot be used
+                    Snackbar.make(view, "Please enable location service", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show()
+                }
+
+            } else {
+                requestPermissions() //the app cannot be run without permission
+            }
+
 //           Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                    .setAction("Action", null).show()
         }
@@ -165,6 +188,10 @@ class MainActivity : AppCompatActivity() {
             }
             startActivity(intent)
         } else {
+            var path = currentPhotoPath
+            path = path.removePrefix("/storage/emulated/0/Android/data/edu.cuhk.csci3310.photodiary/files/")
+            val file: File? = getExternalFilesDir(path)
+            file!!.delete()
             Snackbar.make(mView,"No photo taken",Snackbar.LENGTH_LONG).setAction("Action",null).show()
         }
     }
@@ -214,7 +241,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         readSharedPreferences()
-//        mAdapter?.notifyDataSetChanged()
+        mAdapter?.notifyDataSetChanged()
         if (!photoList.isEmpty()){
             mRecyclerView.smoothScrollToPosition(photoList.size-1) //scroll back to top
         }

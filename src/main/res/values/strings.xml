@@ -13,4 +13,6 @@
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="title_activity_maps">Explorer</string>
+    <string name="delete">delete</string>
+    <string name="back">back</string>
 </resources>

@@ -2,6 +2,7 @@ package edu.cuhk.csci3310.photodiary
 
 import android.R.attr.bitmap
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -9,7 +10,7 @@ import android.graphics.Matrix
 import android.icu.text.SimpleDateFormat
 import android.location.Address
 import android.location.Geocoder
-import android.media.ExifInterface
+import androidx.exifinterface.media.ExifInterface
 import android.net.Uri
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
@@ -59,7 +60,7 @@ class PhotoListAdapter(
         val scaled = Bitmap.createScaledBitmap(bitmapImage, 256, nh, true)
         var exif: ExifInterface? = null
         try {
-            exif = ExifInterface(file?.absolutePath)
+            exif = ExifInterface(file?.absolutePath!!)
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -88,7 +89,7 @@ class PhotoListAdapter(
         return photoList.size
     }
 
-    inner class PhotoViewHolder(
+    inner class PhotoViewHolder (
         itemView: View,
         adapter: PhotoListAdapter
     ) :
@@ -108,8 +109,9 @@ class PhotoListAdapter(
             editor = sharedPreferences!!.edit()
             editor!!.putInt("location", mPosition)
             editor!!.apply()
-//            val intent = Intent(mInflater.context, NewPhotoActivity::class.java)
-//            mInflater.context.startActivity(intent)
+            val intent = Intent(mInflater.context, PhotoActivity::class.java)
+            intent.putExtra("index",mPosition)
+            mInflater.context.startActivity(intent)
             v.performHapticFeedback(
                 HapticFeedbackConstants.VIRTUAL_KEY,
                 HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Ignore device's setting. Otherwise, you can use FLAG_IGNORE_VIEW_SETTING to ignore view's setting.
