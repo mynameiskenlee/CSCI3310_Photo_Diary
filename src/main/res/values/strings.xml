@@ -15,4 +15,6 @@
     <string name="title_activity_maps">Explorer</string>
     <string name="delete">delete</string>
     <string name="back">back</string>
+    <string name="location">Location</string>
+    <string name="date_and_time">Date and Time</string>
 </resources>

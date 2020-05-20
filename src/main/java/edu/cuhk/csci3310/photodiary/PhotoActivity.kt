@@ -10,6 +10,8 @@ import android.location.Address
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.HapticFeedbackConstants
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -20,6 +22,7 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_photo.*
 import java.io.File
 import java.util.*
+
 
 class PhotoActivity : AppCompatActivity() {
 
@@ -75,6 +78,25 @@ class PhotoActivity : AppCompatActivity() {
             }
 
         }
+        editText2.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {}
+            override fun beforeTextChanged(
+                s: CharSequence, start: Int,
+                count: Int, after: Int
+            ) {
+            }
+
+            override fun onTextChanged(
+                s: CharSequence, start: Int,
+                before: Int, count: Int
+            ) {
+                enableSave()
+            }
+        })
+    }
+
+    private fun enableSave() {
+        button3.isEnabled = true
     }
 
     private fun readSharedPreferences() { //read json string and convert it to linked list of sweet
@@ -83,6 +105,15 @@ class PhotoActivity : AppCompatActivity() {
         val type =
             object : TypeToken<LinkedList<Photo?>?>() {}.type
         photoList = gson.fromJson(json, type)
+    }
+
+    fun save(view: View?) {
+        photo.description = editText2.text.toString()
+        val gson = Gson()
+        val json = gson.toJson(photoList)
+        editor.putString("photos", json)
+        editor.apply()
+        close(view!!)
     }
 
     fun del(view: View?) {
